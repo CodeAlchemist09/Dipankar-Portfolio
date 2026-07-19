@@ -44,8 +44,9 @@ export function AdminProfile() {
       setProfile(updated);
       await saveContentSection("profile", updated);
       showToast("Image uploaded!");
-    } catch (err) {
-      showToast("Upload failed");
+    } catch (err: any) {
+      console.error(err);
+      showToast("Error: " + (err.message || "Upload failed"));
     }
     setUploading(null);
   };
