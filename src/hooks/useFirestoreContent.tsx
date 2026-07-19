@@ -81,14 +81,14 @@ export async function seedFirestoreContent(): Promise<boolean> {
   const snap = await getDoc(ref);
   if (snap.exists()) return false; // already seeded
   const data = buildSeedData();
-  await setDoc(ref, data);
+  await setDoc(ref, JSON.parse(JSON.stringify(data)));
   return true; // just seeded
 }
 
 /* --------------------------------------------- save content to Firestore */
 export async function saveContent(content: PortfolioContent): Promise<void> {
   const ref = doc(db, CONTENT_DOC);
-  await setDoc(ref, content);
+  await setDoc(ref, JSON.parse(JSON.stringify(content)));
 }
 
 /* ------------------------------------------------ save a single section */
@@ -103,12 +103,13 @@ export async function saveContentSection<K extends keyof PortfolioContent>(
     // If document doesn't exist (e.g. initial seed failed), seed it now
     const data = buildSeedData();
     data[key] = value;
-    await setDoc(ref, data);
+    await setDoc(ref, JSON.parse(JSON.stringify(data)));
     return;
   }
   
   const current = snap.data() as PortfolioContent;
-  await setDoc(ref, { ...current, [key]: value });
+  const toSave = { ...current, [key]: value };
+  await setDoc(ref, JSON.parse(JSON.stringify(toSave)));
 }
 
 /* --------------------------------------------------------- React context */
