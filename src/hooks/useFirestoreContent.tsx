@@ -98,7 +98,15 @@ export async function saveContentSection<K extends keyof PortfolioContent>(
 ): Promise<void> {
   const ref = doc(db, CONTENT_DOC);
   const snap = await getDoc(ref);
-  if (!snap.exists()) return;
+  
+  if (!snap.exists()) {
+    // If document doesn't exist (e.g. initial seed failed), seed it now
+    const data = buildSeedData();
+    data[key] = value;
+    await setDoc(ref, data);
+    return;
+  }
+  
   const current = snap.data() as PortfolioContent;
   await setDoc(ref, { ...current, [key]: value });
 }
