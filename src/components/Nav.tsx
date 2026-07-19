@@ -45,8 +45,14 @@ export function Nav() {
       >
         <div className="mx-auto flex h-[68px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
           <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="group flex cursor-pointer items-center gap-3" data-cursor>
-            <span className="flex h-9 w-9 items-center justify-center rounded-md border border-gold/40 bg-gold/10 font-display text-sm italic text-gold transition-colors group-hover:bg-gold group-hover:text-ink">
-              {profile.initials}
+            <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md border border-gold/40 bg-gold/10 font-display text-sm italic text-gold transition-colors group-hover:border-gold">
+              {profile.photoURL ? (
+                <img src={profile.photoURL} alt={profile.name} className="h-full w-full object-cover" />
+              ) : (
+                <span className="group-hover:bg-gold group-hover:text-ink flex h-full w-full items-center justify-center transition-colors">
+                  {profile.initials}
+                </span>
+              )}
             </span>
             <span className="hidden text-left sm:block">
               <span className="block text-[13px] font-medium leading-tight tracking-wide text-cream">{profile.name}</span>
@@ -105,7 +111,13 @@ export function Nav() {
             transition={{ duration: 0.35 }}
           >
             <div className="flex h-[68px] items-center justify-between px-5 sm:px-8">
-              <span className="font-display text-lg italic text-gold">{profile.initials}</span>
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md border border-gold/40 bg-gold/10 font-display text-lg italic text-gold">
+                {profile.photoURL ? (
+                  <img src={profile.photoURL} alt={profile.name} className="h-full w-full object-cover" />
+                ) : (
+                  profile.initials
+                )}
+              </span>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
