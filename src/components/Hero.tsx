@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowDown, ArrowUpRight, Mail } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Mail, FileText } from "lucide-react";
 import HeroScene from "./three/HeroScene";
 import { CountUp, EASE } from "./ui";
 import { useContent } from "../hooks/useFirestoreContent";
@@ -107,6 +107,19 @@ export function Hero({ ready }: { ready: boolean }) {
             {profile.email}
             <ArrowUpRight size={14} className="text-mute transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gold" />
           </a>
+          
+          {(profile as any).resumeUrl && (
+            <a
+              href={(profile as any).resumeUrl}
+              target="_blank"
+              rel="noreferrer"
+              data-cursor
+              className="group flex items-center gap-2 rounded-full border border-white/15 bg-ink/40 px-7 py-3.5 text-[13.5px] font-medium text-cream backdrop-blur-md transition-all duration-300 hover:border-emerald-400/60 hover:text-emerald-300"
+            >
+              <FileText size={15} />
+              Resume
+            </a>
+          )}
         </motion.div>
 
         {/* stats */}
