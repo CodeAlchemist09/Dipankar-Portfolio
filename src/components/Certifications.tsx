@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, ExternalLink, FileText } from "lucide-react";
 import { useContent } from "../hooks/useFirestoreContent";
 import { certCategories } from "../data/content";
 import { Chip, Reveal, SectionHeading } from "./ui";
@@ -92,6 +92,21 @@ export function Certifications() {
                           {s}
                         </Chip>
                       ))}
+                    </div>
+                  )}
+                  
+                  {(c.link || c.fileUrl) && (
+                    <div className="mt-4 flex flex-wrap gap-4">
+                      {c.link && (
+                        <a href={c.link} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] text-gold hover:text-gold/80 transition-colors">
+                          <ExternalLink size={12} /> View Credential
+                        </a>
+                      )}
+                      {c.fileUrl && (
+                        <a href={c.fileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors">
+                          <FileText size={12} /> View Certificate
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
