@@ -26,6 +26,7 @@ export const profile = {
   phoneTel: "+918318960207",
   whatsapp: "https://wa.me/918318960207",
   linkedin: "https://www.linkedin.com/in/dipankar-yadav",
+  resumeUrl: "",
 };
 
 export const heroStats = [
