@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Trash2 } from "lucide-react";
+import { Camera, Trash2, FileText, Upload, ExternalLink } from "lucide-react";
 import { useContent, saveContentSection } from "../../hooks/useFirestoreContent";
 import { AdminSectionHeader, AdminCard, SaveButton, FieldLabel, inputCls, StatusToast } from "./AdminUI";
 
@@ -11,11 +11,12 @@ export function AdminProfile() {
   const [uploading, setUploading] = useState<string | null>(null);
   const photoRef = useRef<HTMLInputElement>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
+  const resumeRef = useRef<HTMLInputElement>(null);
 
   // sync when content changes from Firestore
   useState(() => { setProfile({ ...content.profile }); });
 
-  const handleUpload = async (file: File, type: "photo" | "banner") => {
+  const handleUpload = async (file: File, type: "photo" | "banner" | "resume") => {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
     
@@ -30,7 +31,8 @@ export function AdminProfile() {
       formData.append("file", file);
       formData.append("upload_preset", uploadPreset);
 
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      const endpoint = type === "resume" ? "auto/upload" : "image/upload";
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${endpoint}`, {
         method: "POST",
         body: formData,
       });
@@ -39,11 +41,11 @@ export function AdminProfile() {
       const data = await res.json();
       const url = data.secure_url;
 
-      const key = type === "photo" ? "photoURL" : "bannerURL";
+      const key = type === "photo" ? "photoURL" : type === "banner" ? "bannerURL" : "resumeUrl";
       const updated = { ...profile, [key]: url };
       setProfile(updated);
       await saveContentSection("profile", updated);
-      showToast("Image uploaded!");
+      showToast(type === "resume" ? "Resume uploaded!" : "Image uploaded!");
     } catch (err: any) {
       console.error(err);
       showToast("Error: " + (err.message || "Upload failed"));
@@ -80,8 +82,8 @@ export function AdminProfile() {
             <FieldLabel>Profile Photo</FieldLabel>
             <div className="flex items-center gap-4">
               <div className="relative h-20 w-20 overflow-hidden rounded-full border border-white/15 bg-panel2">
-                {profile.photoURL ? (
-                  <img src={profile.photoURL} alt="Profile" className="h-full w-full object-cover" />
+                {(profile as any).photoURL ? (
+                  <img src={(profile as any).photoURL} alt="Profile" className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center font-display text-xl italic text-gold">{profile.initials}</div>
                 )}
@@ -91,7 +93,7 @@ export function AdminProfile() {
                   <Camera size={13} className="inline mr-1.5" />
                   {uploading === "photo" ? "Uploading…" : "Upload Photo"}
                 </button>
-                {profile.photoURL && (
+                {(profile as any).photoURL && (
                   <button onClick={() => update("photoURL", "")} className="cursor-pointer text-[11px] text-mute hover:text-red-300 transition-colors">
                     <Trash2 size={11} className="inline mr-1" /> Remove
                   </button>
@@ -104,8 +106,8 @@ export function AdminProfile() {
             <FieldLabel>Cover Banner</FieldLabel>
             <div className="flex items-center gap-4">
               <div className="h-20 w-32 overflow-hidden rounded-lg border border-white/15 bg-panel2">
-                {profile.bannerURL ? (
-                  <img src={profile.bannerURL} alt="Banner" className="h-full w-full object-cover" />
+                {(profile as any).bannerURL ? (
+                  <img src={(profile as any).bannerURL} alt="Banner" className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-[10px] text-mute">No banner</div>
                 )}
@@ -115,7 +117,7 @@ export function AdminProfile() {
                   <Camera size={13} className="inline mr-1.5" />
                   {uploading === "banner" ? "Uploading…" : "Upload Banner"}
                 </button>
-                {profile.bannerURL && (
+                {(profile as any).bannerURL && (
                   <button onClick={() => update("bannerURL", "")} className="cursor-pointer text-[11px] text-mute hover:text-red-300 transition-colors">
                     <Trash2 size={11} className="inline mr-1" /> Remove
                   </button>
@@ -124,6 +126,28 @@ export function AdminProfile() {
               <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "banner"); e.target.value = ""; }} />
             </div>
           </div>
+          
+          <div className="sm:col-span-2 mt-2">
+            <FieldLabel>Resume (PDF)</FieldLabel>
+            <div className="flex items-center gap-4">
+              <button onClick={() => resumeRef.current?.click()} className="cursor-pointer rounded-lg border border-white/10 px-4 py-2.5 text-[12px] text-mute hover:border-gold/30 hover:text-gold transition-colors">
+                <Upload size={14} className="inline mr-2" />
+                {uploading === "resume" ? "Uploading…" : "Upload Resume PDF"}
+              </button>
+              {(profile as any).resumeUrl && (
+                <>
+                  <a href={(profile as any).resumeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[12px] text-emerald-300 hover:text-emerald-200 transition-colors">
+                    <ExternalLink size={12} /> View Resume
+                  </a>
+                  <button onClick={() => update("resumeUrl", "")} className="cursor-pointer text-[12px] text-mute hover:text-red-300 transition-colors">
+                    <Trash2 size={12} className="inline mr-1" /> Remove
+                  </button>
+                </>
+              )}
+              <input ref={resumeRef} type="file" accept="application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "resume"); e.target.value = ""; }} />
+            </div>
+          </div>
+
         </div>
       </AdminCard>
 
