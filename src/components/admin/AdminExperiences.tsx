@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react";
 import { useContent, saveContentSection } from "../../hooks/useFirestoreContent";
 import { type Experience } from "../../data/content";
 import { AdminSectionHeader, AdminCard, SaveButton, FieldLabel, inputCls, textareaCls, StatusToast } from "./AdminUI";
@@ -30,6 +30,15 @@ export function AdminExperiences() {
     setExperiences((p) => p.filter((e) => e.id !== id));
   };
 
+  const moveExperience = (index: number, dir: "up" | "down") => {
+    setExperiences((prev) => {
+      const arr = [...prev];
+      if (dir === "up" && index > 0) [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+      else if (dir === "down" && index < arr.length - 1) [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+      return arr;
+    });
+  };
+
   const save = async () => {
     setSaving(true);
     try {
@@ -44,7 +53,7 @@ export function AdminExperiences() {
       <AdminSectionHeader title="Experiences" description="Add, edit, or remove your work experiences." />
 
       <div className="space-y-3 mb-6">
-        {experiences.map((exp) => (
+        {experiences.map((exp, index) => (
           <AdminCard key={exp.id} className="!p-0">
             {/* Collapsed header */}
             <button
@@ -55,7 +64,11 @@ export function AdminExperiences() {
                 <p className="text-[14px] font-medium text-cream">{exp.role || "New Experience"}</p>
                 <p className="text-[12px] text-mute">{exp.org} · {exp.period}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="flex items-center mr-1 border-r border-white/10 pr-2">
+                  <button onClick={(e) => { e.stopPropagation(); moveExperience(index, "up"); }} disabled={index === 0} className="cursor-pointer p-1.5 text-mute hover:text-cream disabled:opacity-30 disabled:cursor-not-allowed"><ArrowUp size={14} /></button>
+                  <button onClick={(e) => { e.stopPropagation(); moveExperience(index, "down"); }} disabled={index === experiences.length - 1} className="cursor-pointer p-1.5 text-mute hover:text-cream disabled:opacity-30 disabled:cursor-not-allowed"><ArrowDown size={14} /></button>
+                </div>
                 <button onClick={(e) => { e.stopPropagation(); removeExperience(exp.id); }} className="cursor-pointer rounded-lg border border-white/10 p-2 text-mute hover:text-red-300 transition-colors">
                   <Trash2 size={13} />
                 </button>

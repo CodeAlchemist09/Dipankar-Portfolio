@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react";
 import { useContent, saveContentSection } from "../../hooks/useFirestoreContent";
 import { type CaseStudy, type CaseSection } from "../../data/content";
 import { AdminSectionHeader, AdminCard, SaveButton, FieldLabel, inputCls, textareaCls, StatusToast } from "./AdminUI";
@@ -33,6 +33,15 @@ export function AdminCaseStudies() {
     setExpanded(n.id);
   };
 
+  const moveCaseStudy = (index: number, dir: "up" | "down") => {
+    setCaseStudies((prev) => {
+      const arr = [...prev];
+      if (dir === "up" && index > 0) [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+      else if (dir === "down" && index < arr.length - 1) [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+      return arr;
+    });
+  };
+
   const save = async () => {
     setSaving(true);
     try {
@@ -47,14 +56,18 @@ export function AdminCaseStudies() {
       <AdminSectionHeader title="Case Studies" description="Manage your portfolio case studies with sections, metrics, and images." />
 
       <div className="space-y-3 mb-6">
-        {caseStudies.map((cs) => (
+        {caseStudies.map((cs, index) => (
           <AdminCard key={cs.id} className="!p-0">
             <button onClick={() => setExpanded(expanded === cs.id ? null : cs.id)} className="flex w-full cursor-pointer items-center justify-between p-5 text-left">
               <div>
                 <p className="text-[14px] font-medium text-cream">{cs.title || "New Case Study"}</p>
                 <p className="text-[12px] text-mute">{cs.kind} · {cs.year}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="flex items-center mr-1 border-r border-white/10 pr-2">
+                  <button onClick={(e) => { e.stopPropagation(); moveCaseStudy(index, "up"); }} disabled={index === 0} className="cursor-pointer p-1.5 text-mute hover:text-cream disabled:opacity-30 disabled:cursor-not-allowed"><ArrowUp size={14} /></button>
+                  <button onClick={(e) => { e.stopPropagation(); moveCaseStudy(index, "down"); }} disabled={index === caseStudies.length - 1} className="cursor-pointer p-1.5 text-mute hover:text-cream disabled:opacity-30 disabled:cursor-not-allowed"><ArrowDown size={14} /></button>
+                </div>
                 <button onClick={(e) => { e.stopPropagation(); setCaseStudies((p) => p.filter((c) => c.id !== cs.id)); }} className="cursor-pointer rounded-lg border border-white/10 p-2 text-mute hover:text-red-300 transition-colors">
                   <Trash2 size={13} />
                 </button>

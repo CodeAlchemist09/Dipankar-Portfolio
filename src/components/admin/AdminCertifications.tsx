@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, Upload, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Upload, ExternalLink, ArrowUp, ArrowDown } from "lucide-react";
 import { useContent, saveContentSection } from "../../hooks/useFirestoreContent";
 import { certCategories, type Certification } from "../../data/content";
 import { AdminSectionHeader, AdminCard, SaveButton, FieldLabel, inputCls, StatusToast } from "./AdminUI";
@@ -20,6 +20,15 @@ export function AdminCertifications() {
   const addCert = () => {
     const n: Certification = { id: `cert_${Date.now()}`, name: "", issuer: "", date: "", category: "Product", credId: "", link: "", fileUrl: "", skills: [] };
     setCertifications((p) => [...p, n]);
+  };
+
+  const moveCert = (index: number, dir: "up" | "down") => {
+    setCertifications((prev) => {
+      const arr = [...prev];
+      if (dir === "up" && index > 0) [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+      else if (dir === "down" && index < arr.length - 1) [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+      return arr;
+    });
   };
 
   const handleUpload = async (id: string, file: File) => {
@@ -61,7 +70,7 @@ export function AdminCertifications() {
       <AdminSectionHeader title="Certifications" description="Manage your credentials and certifications." />
 
       <div className="space-y-3 mb-6">
-        {certifications.map((c) => (
+        {certifications.map((c, index) => (
           <AdminCard key={c.id}>
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex-1 grid gap-3 sm:grid-cols-2">
@@ -99,9 +108,15 @@ export function AdminCertifications() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => setCertifications((p) => p.filter((x) => x.id !== c.id))} className="mt-6 cursor-pointer rounded-lg border border-white/10 p-2.5 text-mute hover:text-red-300 transition-colors">
-                <Trash2 size={13} />
-              </button>
+              <div className="flex flex-col gap-2 mt-6">
+                <div className="flex items-center rounded-lg border border-white/10 bg-white/[0.02]">
+                  <button onClick={() => moveCert(index, "up")} disabled={index === 0} className="cursor-pointer p-2 text-mute hover:text-cream disabled:opacity-30 disabled:cursor-not-allowed border-r border-white/10"><ArrowUp size={13} /></button>
+                  <button onClick={() => moveCert(index, "down")} disabled={index === certifications.length - 1} className="cursor-pointer p-2 text-mute hover:text-cream disabled:opacity-30 disabled:cursor-not-allowed"><ArrowDown size={13} /></button>
+                </div>
+                <button onClick={() => setCertifications((p) => p.filter((x) => x.id !== c.id))} className="flex-1 cursor-pointer rounded-lg border flex justify-center border-white/10 p-2 text-mute hover:text-red-300 transition-colors">
+                  <Trash2 size={13} />
+                </button>
+              </div>
             </div>
           </AdminCard>
         ))}
