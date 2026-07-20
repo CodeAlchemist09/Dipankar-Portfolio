@@ -374,7 +374,7 @@ export const caseStudies: CaseStudy[] = [
 ];
 
 /* --------------------------------------------------------- PM ARTIFACTS */
-export const artifactTypes = ["PRD", "Teardown", "Automation", "Dashboard", "Research", "Framework", "Other"] as const;
+export const artifactTypes = ["PRD", "Teardown", "Automation", "Dashboard", "Research", "Framework", "Case Study", "Other"] as const;
 export type ArtifactType = (typeof artifactTypes)[number];
 
 export interface Artifact {
