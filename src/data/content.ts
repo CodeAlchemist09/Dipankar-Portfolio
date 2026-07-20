@@ -510,6 +510,7 @@ export interface Certification {
   category: "Product" | "Data & AI" | "Technical";
   credId?: string;
   link?: string;
+  fileUrl?: string;
   skills?: string[];
   custom?: boolean;
 }
