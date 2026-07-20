@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# Sitemap: https://https://dipankar-portfolio-eight.vercel.app//sitemap.xml
